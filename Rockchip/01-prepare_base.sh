@@ -14,6 +14,7 @@ sed -i '/client_max_body_size/a\\tserver_names_hash_bucket_size 128;' feeds/pack
 sed -i '/ubus_parallel_req/a\        ubus_script_timeout 600;' feeds/packages/net/nginx/files-luci-support/60_nginx-luci-support
 sed -ri "/luci-webui.socket/i\ \t\tuwsgi_send_timeout 600\;\n\t\tuwsgi_connect_timeout 600\;\n\t\tuwsgi_read_timeout 600\;" feeds/packages/net/nginx/files-luci-support/luci.locations
 sed -ri "/luci-cgi_io.socket/i\ \t\tuwsgi_send_timeout 600\;\n\t\tuwsgi_connect_timeout 600\;\n\t\tuwsgi_read_timeout 600\;" feeds/packages/net/nginx/files-luci-support/luci.locations
+
 # uwsgi
 sed -i 's,procd_set_param stderr 1,procd_set_param stderr 0,g' feeds/packages/net/uwsgi/files/uwsgi.init
 sed -i 's,buffer-size = 10000,buffer-size = 131072,g' feeds/packages/net/uwsgi/files-luci-support/luci-webui.ini
@@ -22,6 +23,7 @@ sed -i '$a cgi-timeout = 600' feeds/packages/net/uwsgi/files-luci-support/luci-*
 sed -i 's/threads = 1/threads = 2/g' feeds/packages/net/uwsgi/files-luci-support/luci-webui.ini
 sed -i 's/processes = 3/processes = 4/g' feeds/packages/net/uwsgi/files-luci-support/luci-webui.ini
 sed -i 's/cheaper = 1/cheaper = 2/g' feeds/packages/net/uwsgi/files-luci-support/luci-webui.ini
+
 # rpcd
 sed -i 's/option timeout 30/option timeout 60/g' package/system/rpcd/files/rpcd.config
 sed -i 's#20) \* 1000#60) \* 1000#g' feeds/luci/modules/luci-base/htdocs/luci-static/resources/rpc.js
@@ -32,7 +34,6 @@ wget -qO - https://raw.githubusercontent.com/oppen321/ZeroWrt-Action/refs/heads/
 # 更换为 ImmortalWrt Uboot 以及 Target
 rm -rf ./target/linux/rockchip
 cp -rf ../immortalwrt/target/linux/rockchip ./target/linux/rockchip
-cp -rf ../patch/kernel/rockchip/* ./target/linux/rockchip/patches-6.6/
 rm -rf package/boot/{rkbin,uboot-rockchip,arm-trusted-firmware-rockchip}
 cp -rf ../immortalwrt/package/boot/uboot-rockchip ./package/boot/uboot-rockchip
 cp -rf ../immortalwrt/package/boot/arm-trusted-firmware-rockchip ./package/boot/arm-trusted-firmware-rockchip
@@ -47,7 +48,7 @@ sed -i "s/192.168.1.1/$LAN/g" package/base-files/files/bin/config_generate
 sed -i 's/OpenWrt/ZeroWrt/' package/base-files/files/bin/config_generate
 
 # default-settings
-git clone https://github.com/oppen321/default-settings package/default-settings
+git clone --depth=1 -b openwrt-24.10 https://github.com/oppen321/default-settings package/default-settings
 
 # Realtek driver - R8168 & R8125 & R8126 & R8152 & R8101
 rm -rf package/kernel/r8168 package/kernel/r8101 package/kernel/r8125 package/kernel/r8126
