@@ -26,7 +26,7 @@ jobs:
         git config --global user.email "xxx@xxx.com"
         git config --global user.name "xxxxx"
     - name: Load upstream commits
-      run: git pull https://github.com/xxxxxx/xxxxxx.git --no-edit --strategy-option ours
+      run: git pull https://github.com/oppen321/ZeroWrt-Action.git --no-edit --strategy-option ours
 
     - name: Push Commits
       env:
