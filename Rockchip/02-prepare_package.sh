@@ -9,7 +9,8 @@
 # 替换软件包
 rm -rf feeds/packages/lang/golang
 rm -rf feeds/packages/utils/coremark
-rm -rf feeds/packages/net/{zerotier,xray-core,v2ray-core,v2ray-geodata,sing-box}
+rm -rf feeds/luci/applications/luci-app-alist
+rm -rf feeds/packages/net/{alist,zerotier,xray-core,v2ray-core,v2ray-geodata,sing-box}
 
 # golong1.24依赖
 git clone --depth=1 -b 24.x https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
@@ -20,9 +21,19 @@ git clone --depth=1 -b helloworld https://github.com/oppen321/openwrt-package pa
 # 加载软件源
 git clone --depth=1 https://github.com/oppen321/openwrt-package package/openwrt-package
 
-# 更改 Argon 主题背景
-curl -s $mirror/images/bg1.jpg package/openwrt-package/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
+# 加入作者信息
+sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='ZeroWrt-$(date +%Y%m%d)'/g"  package/base-files/files/etc/openwrt_release
+sed -i "s/DISTRIB_REVISION='*.*'/DISTRIB_REVISION=' By OPPEN321'/g" package/base-files/files/etc/openwrt_release
+
+# appfilter
+sed -i 's/services/network/' package/openwrt-package/OpenAppFilter/luci-app-oaf/luasrc/controller/appfilter.lua
+sed -i 's/services/network/' package/openwrt-package/OpenAppFilter/luci-app-oaf/luasrc/model/cbi/appfilter/*.lua
+sed -i 's/services/network/' package/openwrt-package/OpenAppFilter/luci-app-oaf/luasrc/view/admin_network/*.htm
+sed -i 's/services/network/' package/openwrt-package/OpenAppFilter/luci-app-oaf/luasrc/view/cbi/*.htm
+
+# 主题设置
 sed -i 's/bing/none/' package/openwrt-package/luci-app-argon-config/root/etc/config/argon
+curl -s $mirror/images/bg1.jpg package/openwrt-package/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
 
 # update feeds
 ./scripts/feeds update -a
