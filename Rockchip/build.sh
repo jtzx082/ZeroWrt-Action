@@ -97,7 +97,7 @@ bash 05-create_acl_for_luci.sh
 # Load devices Config
 curl -s $mirror/Rockchip/rockchip.config > .config
 
-# gcc14 & 15
+# gcc13 & 14
 if [ "$USE_GCC13" = y ]; then
     export USE_GCC13=y gcc_version=13
 elif [ "$USE_GCC14" = y ]; then
@@ -109,9 +109,6 @@ echo -e "\n# gcc $gcc_version" >> .config
 echo -e "CONFIG_DEVEL=y" >> .config
 echo -e "CONFIG_TOOLCHAINOPTS=y" >> .config
 echo -e "CONFIG_GCC_USE_VERSION_$gcc_version=y\n" >> .config
-
-# bpf
-curl -s $mirror/generic/config-bpf >> .config
 
 # Toolchain Cache
 if [ "$ENABLE_CCACHE" = "y" ]; then
@@ -165,3 +162,11 @@ make defconfig
 
 # Compile
 make -j$(nproc)
+
+# rename
+export date=$(date +%Y%m%d)
+export kernel=$(grep -oP '(?<=LINUX_KERNEL_HASH-)[0-9]+\.[0-9]+\.[0-9]+' include/kernel-6.6)
+
+for file in bin/targets/rockchip/armv8/openwrt-rockchip-armv8*; do
+    mv "$file" "bin/targets/rockchip/armv8/ZeroWrt-Super-${date}-${kernel}${file#bin/targets/rockchip/armv8/openwrt-rockchip-armv8}"
+done
