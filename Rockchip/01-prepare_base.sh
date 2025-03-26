@@ -28,6 +28,34 @@ sed -i 's/cheaper = 1/cheaper = 2/g' feeds/packages/net/uwsgi/files-luci-support
 sed -i 's/option timeout 30/option timeout 60/g' package/system/rpcd/files/rpcd.config
 sed -i 's#20) \* 1000#60) \* 1000#g' feeds/luci/modules/luci-base/htdocs/luci-static/resources/rpc.js
 
+# distfeeds.conf
+mkdir -p files/etc/opkg
+cat > files/etc/opkg/distfeeds.conf <<EOF
+src/gz openwrt_base https://mirrors.aliyun.com/openwrt/releases/24.10.0/packages/aarch64_generic/base
+src/gz openwrt_luci https://mirrors.aliyun.com/openwrt/releases/24.10.0/packages/aarch64_generic/luci
+src/gz openwrt_packages https://mirrors.aliyun.com/openwrt/releases/24.10.0/packages/aarch64_generic/packages
+src/gz openwrt_routing https://mirrors.aliyun.com/openwrt/releases/24.10.0/packages/aarch64_generic/routing
+src/gz openwrt_telephony https://mirrors.aliyun.com/openwrt/releases/24.10.0/packages/aarch64_generic/telephony
+EOF
+
+# samba4
+sed -i 's/#aio read size = 0/aio read size = 0/g' feeds/packages/net/samba4/files/smb.conf.template
+sed -i 's/#aio write size = 0/aio write size = 0/g' feeds/packages/net/samba4/files/smb.conf.template
+sed -i 's/invalid users = root/#invalid users = root/g' feeds/packages/net/samba4/files/smb.conf.template
+sed -i 's/bind interfaces only = yes/bind interfaces only = no/g' feeds/packages/net/samba4/files/smb.conf.template
+sed -i 's/#create mask/create mask/g' feeds/packages/net/samba4/files/smb.conf.template
+sed -i 's/#directory mask/directory mask/g' feeds/packages/net/samba4/files/smb.conf.template
+sed -i 's/0666/0644/g;s/0744/0755/g;s/0777/0755/g' feeds/luci/applications/luci-app-samba4/htdocs/luci-static/resources/view/samba4.js
+sed -i 's/0666/0644/g;s/0777/0755/g' feeds/packages/net/samba4/files/samba.config
+sed -i 's/0666/0644/g;s/0777/0755/g' feeds/packages/net/samba4/files/smb.conf.template
+
+# bash
+sed -i 's#ash#bash#g' package/base-files/files/etc/passwd
+sed -i '\#export ENV=/etc/shinit#a export HISTCONTROL=ignoredups' package/base-files/files/etc/profile
+mkdir -p files/root
+curl -so files/root/.bash_profile $gitea/files/raw/branch/main/root/.bash_profile
+curl -so files/root/.bashrc $gitea/files/raw/branch/main/root/.bashrc
+
 # make olddefconfig
 wget -qO - https://raw.githubusercontent.com/oppen321/ZeroWrt-Action/refs/heads/master/patch/linux/0003-include-kernel-defaults.mk.patch | patch -p1
 
@@ -62,6 +90,11 @@ sed -i 's/procd_set_param stderr 1/procd_set_param stderr 0/g' feeds/packages/ut
 # luci
 pushd feeds/luci
     curl -s $mirror/patch/luci/0001-luci-mod-status-firewall-disable-legacy-firewall-rul.patch | patch -p1
+    curl -s $mirror/patch/luci/0002-luci-mod-status-displays-actual-process-memory-usage.patch | patch -p1
+    curl -s $mirror/patch/luci/0003-luci-mod-system-add-modal-overlay-dialog-to-reboot.patch | patch -p1
+    curl -s $mirror/patch/luci/0004-luci-mod-status-storage-index-applicable-only-to-val.patch | patch -p1
+    curl -s $mirror/patch/luci/0005-luci-mod-system-add-refresh-interval-setting.patch | patch -p1
+    curl -s $mirror/patch/luci/0006-luci-mod-system-mounts-add-docker-directory-mount-po.patch | patch -p1  
 popd
 
 # module
