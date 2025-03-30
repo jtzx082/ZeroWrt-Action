@@ -56,9 +56,6 @@ mkdir -p files/root
 curl -so files/root/.bash_profile https://git.kejizero.online/zhao/files/raw/branch/main/root/.bash_profile
 curl -so files/root/.bashrc https://git.kejizero.online/zhao/files/raw/branch/main/root/.bashrc
 
-# banner
-cp -f package/openwrt-package/banner  package/base-files/files/etc/banner
-
 # default LAN IP
 sed -i "s/192.168.1.1/10.0.0.1/g" package/base-files/files/bin/config_generate
 
@@ -142,6 +139,9 @@ git clone --depth=1 -b helloworld https://github.com/oppen321/openwrt-package pa
 # 加载软件源
 git clone --depth=1 https://github.com/oppen321/openwrt-package package/openwrt-package
 
+# banner
+cp -f package/openwrt-package/banner  package/base-files/files/etc/banner
+
 # Docker
 rm -rf feeds/luci/applications/luci-app-dockerman
 git clone https://git.kejizero.online/zhao/luci-app-dockerman feeds/luci/applications/luci-app-dockerman
@@ -178,6 +178,9 @@ sed -i 's#<a class="luci-link" href="https://github.com/openwrt/luci" target="_b
 sed -i 's|<a href="https://github.com/jerrykuku/luci-theme-argon" target="_blank">ArgonTheme <%# vPKG_VERSION %></a>|<a href="https://github.com/oppen321/ZeroWrt-Action" target="_blank">ZeroWrt-Action</a> |g' package/openwrt-package/luci-theme-argon/luasrc/view/themes/argon/footer.htm
 sed -i 's#<a class="luci-link" href="https://github.com/openwrt/luci" target="_blank">Powered by <%= ver.luciname %> (<%= ver.luciversion %>)</a> /#<a class="luci-link" href="https://www.kejizero.online" target="_blank">探索无限</a> /#' package/openwrt-package/luci-theme-argon/luasrc/view/themes/argon/footer_login.htm
 sed -i 's|<a href="https://github.com/jerrykuku/luci-theme-argon" target="_blank">ArgonTheme <%# vPKG_VERSION %></a>|<a href="https://github.com/oppen321/ZeroWrt-Action" target="_blank">ZeroWrt-Action</a> |g' package/openwrt-package/luci-theme-argon/luasrc/view/themes/argon/footer_login.htm
+
+# 版本设置
+# sed -i "s/\(_('Firmware Version'), (L.isObject(boardinfo.release) ? boardinfo.release.description\) + ' \/ '/\1 + boardinfo.release.revision + ' \/ '/" feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
 
 # update feeds
 ./scripts/feeds update -a
