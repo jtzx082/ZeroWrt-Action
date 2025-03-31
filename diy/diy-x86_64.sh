@@ -68,6 +68,9 @@ git clone --depth=1 -b openwrt-24.10 https://github.com/oppen321/default-setting
 # openwrt patch
 git clone --depth=1 -b kernel-6.6 https://github.com/oppen321/OpenWrt-Patch
 
+# make olddefconfig
+wget -qO - https://raw.githubusercontent.com/oppen321/OpenWrt-Patch/refs/heads/kernel-6.6/kernel/0003-include-kernel-defaults.mk.patch | patch -p1
+
 # Luci diagnostics.js
 sed -i "s/openwrt.org/www.qq.com/g" feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js
 
@@ -76,6 +79,9 @@ sed -i 's/services/system/g' feeds/luci/applications/luci-app-ttyd/root/usr/shar
 sed -i '3 a\\t\t"order": 50,' feeds/luci/applications/luci-app-ttyd/root/usr/share/luci/menu.d/luci-app-ttyd.json
 sed -i 's/procd_set_param stdout 1/procd_set_param stdout 0/g' feeds/packages/utils/ttyd/files/ttyd.init
 sed -i 's/procd_set_param stderr 1/procd_set_param stderr 0/g' feeds/packages/utils/ttyd/files/ttyd.init
+
+# bbr
+cp -rf OpenWrt-Patch/bbr3/* ./target/linux/generic/backport-6.6/
 
 # bcmfullcone
 cp -rf OpenWrt-Patch/bcmfullcone/* ./target/linux/generic/hack-6.6/
@@ -181,6 +187,23 @@ sed -i 's|<a href="https://github.com/jerrykuku/luci-theme-argon" target="_blank
 
 # 版本设置
 # sed -i "s/\(_('Firmware Version'), (L.isObject(boardinfo.release) ? boardinfo.release.description\) + ' \/ '/\1 + boardinfo.release.revision + ' \/ '/" feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
+
+cat << 'EOF' >> feeds/luci/modules/luci-mod-status/ucode/template/admin_status/index.ut
+<script>
+function addLinks() {
+    var section = document.querySelector(".cbi-section");
+    if (section) {
+        var links = document.createElement('div');
+        links.innerHTML = '<div class="table"><div class="tr"><div class="td left" width="33%"><a href="https://qm.qq.com/q/JbBVnkjzKa" target="_blank">QQ交流群</a></div><div class="td left" width="33%"><a href="https://t.me/kejizero" target="_blank">TG交流群</a></div><div class="td left"><a href="https://github.com/oppen321/ZeroWrt-Action" target="_blank">GitHub仓库</a></div></div></div>';
+        section.appendChild(links);
+    } else {
+        setTimeout(addLinks, 100); // 继续等待 `.cbi-section` 加载
+    }
+}
+
+document.addEventListener("DOMContentLoaded", addLinks);
+</script>
+EOF
 
 # update feeds
 ./scripts/feeds update -a
