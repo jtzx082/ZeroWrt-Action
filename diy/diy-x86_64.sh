@@ -150,12 +150,13 @@ cp -f package/openwrt-package/banner  package/base-files/files/etc/banner
 
 # Docker
 rm -rf feeds/luci/applications/luci-app-dockerman
-git clone https://git.kejizero.online/zhao/luci-app-dockerman feeds/luci/applications/luci-app-dockerman
+git clone https://github.com/oppen321/luci-app-dockerman feeds/luci/applications/luci-app-dockerman
 rm -rf feeds/packages/utils/{docker,dockerd,containerd,runc}
 git clone https://git.kejizero.online/zhao/packages_utils_docker feeds/packages/utils/docker
 git clone https://git.kejizero.online/zhao/packages_utils_dockerd feeds/packages/utils/dockerd
 git clone https://git.kejizero.online/zhao/packages_utils_containerd feeds/packages/utils/containerd
 git clone https://git.kejizero.online/zhao/packages_utils_runc feeds/packages/utils/runc
+sed -i '/cgroupfs-mount/d' feeds/packages/utils/dockerd/Config.in
 sed -i '/sysctl.d/d' feeds/packages/utils/dockerd/Makefile
 pushd feeds/packages
     curl -s https://raw.githubusercontent.com/oppen321/OpenWrt-Patch/refs/heads/kernel-6.6/docker/0001-dockerd-fix-bridge-network.patch | patch -p1
@@ -186,15 +187,13 @@ sed -i 's#<a class="luci-link" href="https://github.com/openwrt/luci" target="_b
 sed -i 's|<a href="https://github.com/jerrykuku/luci-theme-argon" target="_blank">ArgonTheme <%# vPKG_VERSION %></a>|<a href="https://github.com/oppen321/ZeroWrt-Action" target="_blank">ZeroWrt-Action</a> |g' package/openwrt-package/luci-theme-argon/luasrc/view/themes/argon/footer_login.htm
 
 # 版本设置
-# sed -i "s/\(_('Firmware Version'), (L.isObject(boardinfo.release) ? boardinfo.release.description\) + ' \/ '/\1 + boardinfo.release.revision + ' \/ '/" feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
-
 cat << 'EOF' >> feeds/luci/modules/luci-mod-status/ucode/template/admin_status/index.ut
 <script>
 function addLinks() {
     var section = document.querySelector(".cbi-section");
     if (section) {
         var links = document.createElement('div');
-        links.innerHTML = '<div class="table"><div class="tr"><div class="td left" width="33%"><a href="https://qm.qq.com/q/JbBVnkjzKa" target="_blank">QQ交流群</a></div><div class="td left" width="33%"><a href="https://t.me/kejizero" target="_blank">TG交流群</a></div><div class="td left"><a href="https://github.com/oppen321/ZeroWrt-Action" target="_blank">GitHub仓库</a></div></div></div>';
+        links.innerHTML = '<div class="table"><div class="tr"><div class="td left" width="33%"><a href="https://qm.qq.com/q/JbBVnkjzKa" target="_blank">QQ交流群</a></div><div class="td left" width="33%"><a href="https://t.me/kejizero" target="_blank">TG交流群</a></div><div class="td left"><a href="https://openwrt.kejizero.online" target="_blank">固件地址</a></div></div></div>';
         section.appendChild(links);
     } else {
         setTimeout(addLinks, 100); // 继续等待 `.cbi-section` 加载
@@ -204,6 +203,10 @@ function addLinks() {
 document.addEventListener("DOMContentLoaded", addLinks);
 </script>
 EOF
+
+# istoreos
+sed -i 's/iStoreOS/ZeroWrt/' package/openwrt-package/istoreos-files/files/etc/board.d/10_system
+sed -i 's/192.168.100.1/10.0.0.1/' package/openwrt-package/istoreos-files/Makefile
 
 # update feeds
 ./scripts/feeds update -a
