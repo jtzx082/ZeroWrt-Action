@@ -139,6 +139,9 @@ cp -rf ../OpenWrt-Patch/btf/* ./target/linux/generic/hack-6.6/
 # arm64 型号名称
 cp -rf ../OpenWrt-Patch/arm/* ./target/linux/generic/hack-6.6/
 
+# OTHERS
+cp -rf ../OpenWrt-Patch/other/* ./target/linux/generic/pending-6.6/
+
 # cgroupfs-mount
 # fix unmount hierarchical mount
 pushd feeds/packages
@@ -149,6 +152,11 @@ mkdir -p feeds/packages/utils/cgroupfs-mount/patches
 cp -rf ../OpenWrt-Patch/pkgs/cgroupfs-mount/900-mount-cgroup-v2-hierarchy-to-sys-fs-cgroup-cgroup2.patch ./feeds/packages/utils/cgroupfs-mount/patches/
 cp -rf ../OpenWrt-Patch/pkgs/cgroupfs-mount/901-fix-cgroupfs-umount.patch ./feeds/packages/utils/cgroupfs-mount/patches/
 cp -rf ../OpenWrt-Patch/pkgs/cgroupfs-mount/902-mount-sys-fs-cgroup-systemd-for-docker-systemd-suppo.patch ./feeds/packages/utils/cgroupfs-mount/patches/
+
+# vim - fix E1187: Failed to source defaults.vim
+pushd feeds/packages
+patch -p1 < ../../../OpenWrt-Patch/vim/0001-vim-fix-renamed-defaults-config-file.patch
+popd
 
 # procps-ng - top
 sed -i 's/enable-skill/enable-skill --disable-modern-top/g' feeds/packages/utils/procps-ng/Makefile
@@ -178,6 +186,7 @@ cp -rf ../openwrt-package ./package
 cp -rf ../helloworld ./package
 rm -rf feeds/packages/utils/coremark
 rm -rf feeds/luci/applications/luci-app-alist
+rm -rf package/kernel/{r8168,r8101,r8125,r8126,r8127}
 rm -rf feeds/packages/net/{alist,zerotier,xray-core,v2ray-core,v2ray-geodata,sing-box,sms-tool}
 
 # 更换 golang 版本
@@ -188,36 +197,12 @@ cp -rf ../golang ./feeds/packages/lang/golang
 rm -rf feeds/packages/lang/node
 cp -rf ../node feeds/packages/lang/node
 
-# fstools
-rm -rf package/system/fstools
-cp -rf ../fstools ./package/system/fstools
-
-# util-linux
-rm -rf package/utils/util-linux
-cp -rf ../util-linux ./package/utils/util-linux
-
-# nghttp3
-rm -rf feeds/packages/libs/nghttp3
-cp -rf ../nghttp3 ./feeds/packages/libs/nghttp3
-
-# ngtcp2
-rm -rf feeds/packages/libs/ngtcp2
-cp -rf ../ngtcp2 ./package/libs/ngtcp2
-
-# curl - fix passwall `time_pretransfer` check
-rm -rf feeds/packages/net/curl
-cp -rf ../curl ./feeds/packages/net/curl
-
 # odhcpd RFC-9096
 mkdir -p package/network/services/odhcpd/patches
 cp -rf ../OpenWrt-Patch/pkgs/odhcpd/001-odhcpd-RFC-9096-compliance-openwrt-24.10.patch ./package/network/services/odhcpd/patches/001-odhcpd-RFC-9096-compliance.patch
 pushd feeds/luci
 patch -p1 < ../../../OpenWrt-Patch/pkgs/odhcpd/luci-mod-network-add-option-for-ipv6-max-plt-vlt.patch
 popd
-
-# urngd - 2020-01-21
-rm -rf package/system/urngd
-cp -rf ../urngd ./package/system/urngd
 
 # zlib - 1.3
 ZLIB_VERSION=1.3.1
@@ -258,7 +243,17 @@ sed -i 's/0666/0644/g;s/0777/0755/g' feeds/packages/net/samba4/files/samba.confi
 sed -i 's/0666/0644/g;s/0777/0755/g' feeds/packages/net/samba4/files/smb.conf.template
 
 # rootfs files
-cp -rf ../OpenWrt-Patch/files ./files
+cp -rf ../OpenWrt-Patch/files/* ./files/
+chmod +x files/bin/ZeroWrt
+chmod +x files/root/version.txt
+
+# Realtek_Driver
+cp -rf ../Realtek_Driver/package_kernel_r8101 ./package/kernel/r8101
+cp -rf ../Realtek_Driver/package_kernel_r8125 ./package/kernel/r8125
+cp -rf ../Realtek_Driver/package_kernel_r8126 ./package/kernel/r8126
+cp -rf ../Realtek_Driver/package_kernel_r8127 ./package/kernel/r8127
+cp -rf ../Realtek_Driver/package_kernel_r8152 ./package/kernel/r8152
+cp -rf ../Realtek_Driver/package_kernel_r8168 ./package/kernel/r8168
 
 # Docker
 rm -rf feeds/luci/applications/luci-app-dockerman
